@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cytoscape.js</title>
+	<link rel="shortcut icon" href="#" />
+	<script src="/static/js/jquery-3.3.1.min.js"></script>
+	<link href="/static/css/style.css" rel="stylesheet" />
+    <script src="/static/js/cytoscape.min.js"></script>
+	<link href="/static/css/jquery-ui.css" rel="stylesheet" />
+  	<script src=/static/js/jquery-ui.js></script>
+</head>
+<body>
+    <div id="header" style="border:solid 1px #e8efe8">
+		<div style="margin-left:60px;">
+			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
+		</div>
+	</div>
+    <div id="content" style="height:400px; width:80%; margin:0 auto;">
+		<div id="left_comp" style="border:solid 1px #e8efe8">
+			<div>
+				<form>
+					<!--选择网络-->
+					<div class="toggle">
+						<div class="toggle_title"><p>Net</p></div>
+						<div class="toggle_select" >
+							<div><select class="net"  style="width:160px" id="menu_net">
+								<option value="pam3" selected>Pam3</option>
+								<option value="r848" >R848</option>
+								<option value="I2D" >I2D</option>
+								<option value="HumanNet" >HumanNet</option>
+								<option value="HumanSignaling" >HumanSignaling</option>
+								</select>
+								<input type="button" style="width:160px; background:#f8f8f8;color:black;margin-top:5px;" value="Open" id="net_select">
+							</div>
+						</div>
+						<div class="toggle_footer"></div>
+					</div>
+
+					<!--选择基因标签-->
+					<div class="toggle">
+						<div class="toggle_title"><p>Gene Label</p></div>
+						<div class="toggle_select">
+							<div><select class="label" id="menu_label" style="width:160px" onchange="labelSelect(this.id)">
+								<option selected>Please Choose</option>
+								<option value="a">a</option>
+								<option value="b">b</option>
+								<option value="c">c</option>
+								</select>
+								</div>
+						</div>
+						<div class="toggle_footer"></div>
+					</div>
+
+					<!--属性选择器-->
+					<div class="toggle">
+						<div class="toggle_title"><p>Filter</p></div>
+						<div class="toggle_select">
+							<div><select class="filter" id="filter" style="width:160px" onchange="filter_column(this.id)">
+								<option selected>Please Choose Column</option>
+								<option value="exp">Node:exp</option>
+								<option value="weight">Edge:weight</option>
+								</select>
+							</div>
+							<div id="change" style="visibility: hidden">
+								<label style="font-size:8px;">between</label>
+								<input type="text" id="min" style="width:35px;" onkeypress="min_filter()">
+								<!--<button id="min_filter" style="display:none"></button>-->
+								<label style="font-size:8px;">and</label>
+								<input type="text" id="max" style="width:30px;" onkeypress="max_filter()">
+								<!--<button id="max_filter" style="display:none"></button>-->
+								<!--<input type="range" id="range1" value="100" onchange="filter_value(this.id)">-->
+								<div id="range" style="width:130px;"></div>
+							</div>
+						</div>
+						<div class="toggle_footer"></div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div id="right_comp" style="border:1px solid #e8efe8">
+			<div><ul class="dropdown">
+				<li><a href="#">Layout</a>
+					<ul class="dropdown-menu" id='layoutMenu'>
+						<li><a id="Random" value="random">Random</a></li>
+						<li><a id="Preset" value="preset">Preset</a>
+						<li><a id="Grid" value="grid">Grid</a></li>
+						<li><a id="Circle" value="circle">Circle</a></li>
+						<li><a id="Concentic" value="concentric">Concentic</a></li>
+						<li><a id="BreadthFirst" value="breadthfirst">Breadth First</a></li>
+						<li><a id="Cose" value="cose">Cose</a></li>
+					</ul>
+				</li>
+				<li><a id="btn-hide" href="#">Hide</a>
+				<li><a id="btn-show" href="#">Show</a>
+				<li><a href="#name1">Information</a>
+					<ul class="dropdown-menu" id='infoMenu'>
+						<li><a href="#name1" value="expression">Expression</a></li>
+						<li><a href="#name1" value="function">Function</a></li>
+						<li><a href="#name1" value="pathways_interactions">Bio_Process</a></li>
+						<li><a href="#name1" value="deseases">Deseases</a></li>
+						<li><a href="#name1" value="drugs_compounds">Drugs</a></li>
+						<li><a href="#name1" value="pathways_interactions">Pathways</a></li>
+						<li><a href="#name1" value="connection">Connections</a></li>
+					</ul>
+				</li>
+			</ul></div>
+			<div id="cy"></div>
+		</div>
+	</div>
+	<div id="info" style="display:none;border-top:10px;">
+		<div><ul class="dropdown" id="infoList">
+			<li><a id="expression" value="expression">Expression</a></li>
+			<li><a id="function" value="function">Function</a></li>
+			<li><a id="go_proc" value="pathways_interactions">Bio_Process</a></li>
+			<li><a id="deseases" value="deseases">Deseases</a></li>
+			<li><a id="drugs_compounds" value="drugs_compounds">Drugs</a></li>
+			<li><a id="pathwaysBySuperPath" value="pathways_interactions">Pathways</a></li>
+			<li><a id="connection" value="connection">Connections</a></li>
+		</ul></div>
+		<a name="name1"><iframe id="iframe" name="iframe" align="center" width="100%" height="1000px" src="https://www.genecards.org/cgi-bin/carddisp.pl?gene=sez6l#function"  frameborder="no" border="0" marginwidth="0" marginheight="0"></iframe></a>
+	</div>
+
+	<script>
+		var cy = new Object();
+	</script>
+
+   	<!--选择网络-->
+	<script>
+	$("#net_select").click(function(){
+		var net = document.getElementById("menu_net").value;
+		$.ajax({
+			type : 'post',
+			url : '/select',
+			dataType : 'json',
+			data : JSON.stringify({'net':net}),
+			contentType : 'application/json',
+			traditional : true,
+			success : function(){
+
+			},
+			error : function(){
+<!--					alert("error!");-->
+			}
+		});
+		window.location.href='/info';
+		window.event.returnValue=false;
+	})
+	</script>
+
+	<!--显示网络-->
+    <script>
+    $(function(){
+        $.get('/graph', function(result) {
+            var style = [
+                { selector: 'node',
+                    css: {"width": "20",
+                    "height": "20",
+                    "content": "data(name)",
+                    "font-size": "10px",
+                    "text-valign": "center",
+                    "text-halign": "center",
+                    "background-color": "#555",
+                    "text-outline-color": "#555",
+                    "text-outline-width": "2px",
+                    "color": "#fff",
+                    "overlay-padding": "6px",
+                    "z-index": "10"}
+                },
+                { selector: "node:selected",
+                css: {
+                    "border-width": "6px",
+                    "border-color": "yellow",
+                    "border-opacity": "0.5",
+                    "background-color": "#77828C",
+                    "text-outline-color": "#77828C"}
+                },
+                { selector:'node[exp>5]',
+                css:{"width": "80",
+                    "height": "80"
+                    <!--"background-color": "#0000CC",-->
+                    }
+                },
+                { selector:'node[exp>3]',
+                css:{"width": "60",
+                    "height": "60"
+                    <!--"background-color": "#0066FF",-->
+                    }
+                },
+                { selector:'node[exp>2]',
+                css:{"width": "40",
+                    "height": "40"
+                    <!--"background-color": "#99BBFF",-->
+                    }
+                },
+                { selector:'edge',
+                css: {
+                'line-color':'blue',
+                'opacity':'0.5'}
+                },
+                { selector: 'edge:selected',
+                css: {
+                    'line-color':'yellow',
+                    "opacity": "1"}
+                },
+                { selector:'edge[weight>0]',
+                css:{'line-color':'red',
+                "opacity": "0.4"}
+                },
+                { selector:'edge[weight<0]',
+                css:{'line-color':'blue',
+                "opacity": "0.4"}
+                }
+            ];
+
+             cy = cytoscape({
+                container: document.getElementById('cy'),
+                style: style,
+                layout: { name: 'cose', fit: true },
+                elements: result.elements
+            });
+        }, 'json');
+    });
+    </script>
+
+    <script>
+        window.onload=function (){
+            function GetQueryString(name){
+                 var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+                 var r = window.location.search.substr(1).match(reg); //search,查询？后面的参数，并匹配正则
+                 if(r!=null)return  unescape(r[2]); return null;
+            };
+            var nodes = GetQueryString('nodes').split(',');
+            var result = cy.collection();
+            for(var i in nodes){
+				cy.nodes().forEach(function(ele){
+					if(ele.data("name") == nodes[i]){
+						result = result.add(ele);
+					}
+				})
+			}
+            cy.nodes(':selected').unselect();
+            result.select();
+<!--            cy.reset();-->
+<!--            cy.center(result);-->
+<!--            cy.zoom({-->
+<!--            renderedPosition: { x: result.position('x'), y: result.position('y') },-->
+<!--            level: 1.15,-->
+<!--            });-->
+        };
+    </script>
+
+    <!--选择标签-->
+	<script>
+		function labelSelect(v){
+			var lab = document.getElementById(v).value;
+			var result = cy.collection();
+			cy.nodes().forEach(function (ele){
+				if(ele.data("labels")==lab){
+					result = result.add(ele);
+				}
+			});
+			cy.nodes(':selected').unselect();
+			result.select();
+			<!--cy.style().selector('node:selected').style({-->
+				<!--"background-color":"yellow"});-->
+		}
+	</script>
+
+	<!--布局-->
+	<script>
+		$('#layoutMenu li a').click(function(){
+			var layoutName = $(this).attr('value');
+			var layout = cy.makeLayout({
+			name : layoutName
+			});
+			layout.run();
+		});
+	</script>
+
+	<!--选择隐藏-->
+	<script>
+		$("#btn-hide").click(function(){
+			cy.$(':unselected').hide();
+			})
+		$('#btn-show').click(function() {
+			cy.$('node').show();
+			cy.$('edge').show();
+		});
+	</script>
+
+    <!--属性选择-->
+	<script>
+		var col;
+		var minvalue;
+		var maxvalue;
+		var mintemp;
+		var maxtemp;
+		<!--选择列-->
+		function filter_column(v){
+			col = document.getElementById(v).value;
+			var divstyle = document.getElementById("change");
+			divstyle.style.cssText="visibility: visible;";
+			var arr=[];
+			if(col == "exp"){
+				cy.nodes().forEach(function (ele){
+					arr.push(String(ele.data(col)));
+				});
+			}
+			else if(col == "weight"){
+				cy.edges().forEach(function (ele){
+					arr.push(String(ele.data(col)));
+				});
+			}
+			mintemp = minvalue = Math.min.apply(Math, arr);
+			maxtemp = maxvalue = Math.max.apply(Math, arr);
+			document.getElementById("min").value = minvalue.toFixed(3);
+			document.getElementById("max").value = maxvalue.toFixed(3);
+			if(col == "exp"){
+				$( "#range" ).slider({
+					range: true,
+					min: 1.501,
+					max: 6.422,
+					step: 0.001,
+					values: [1.501, 6.421],
+					slide: function( event, ui ) {
+						$( "#min" ).val(ui.values[ 0 ]);
+						$( "#max" ).val(ui.values[ 1 ]);
+						var result = cy.collection();
+						cy.nodes().forEach(function (ele){
+							if(ele.data(col) >= ui.values[ 0 ] && ele.data(col) <= ui.values[ 1 ]){
+								result = result.add(ele);
+							}
+						});
+						cy.nodes(':selected').unselect();
+						result.select();
+					}
+				});
+			}
+			if(col == "weight"){
+				$( "#range" ).slider({
+					range: true,
+					min: -0.918,
+					max: 0.967,
+					step: 0.001,
+					values: [-0.918, 0.967],
+					slide: function( event, ui ) {
+						$( "#min" ).val(ui.values[ 0 ]);
+						$( "#max" ).val(ui.values[ 1 ]);
+						var result = cy.collection();
+						cy.edges().forEach(function (ele){
+							if(ele.data(col) >= ui.values[ 0 ] && ele.data(col) <= ui.values[ 1 ]){
+								result = result.add(ele);
+							}
+						});
+						cy.edges(':selected').unselect();
+						result.select();
+					}
+				});
+			}
+		};
+
+		<!--最小文本框-->
+		function min_filter(){
+			mintemp = document.getElementById("min").value;
+			var result = cy.collection();
+			if(event.keyCode == "13"){
+				if(mintemp >= minvalue && mintemp < maxtemp){
+					if(col == "exp"){
+						cy.nodes().forEach(function (ele){
+							if(ele.data(col) >= mintemp && ele.data(col) <= maxtemp){
+								result = result.add(ele);
+							}
+						});
+						cy.nodes(':selected').unselect();
+						result.select();
+					}
+					if(col ==  "weight"){
+						cy.edges().forEach(function (ele){
+							if(ele.data(col) >= mintemp && ele.data(col) <= maxtemp){
+								result = result.add(ele);
+							}
+						});
+						cy.edges(':selected').unselect();
+						result.select();
+					}
+				}
+				else{
+					alert("Input Error!")
+				}
+			}
+		};
+
+		<!--最大文本框-->
+		function max_filter(){
+			maxtemp = document.getElementById("max").value;
+			var result = cy.collection();
+			if(event.keyCode == "13"){
+				if(maxtemp <= maxvalue && mintemp < maxtemp){
+					if(col == "exp"){
+						cy.nodes().forEach(function (ele){
+							if(ele.data(col) >= mintemp && ele.data(col) <= maxtemp){
+								result = result.add(ele);
+							}
+						});
+						cy.nodes(':selected').unselect();
+						result.select();
+					}
+					if(col ==  "weight"){
+						cy.edges().forEach(function (ele){
+							if(ele.data(col) >= mintemp && ele.data(col) <= maxtemp){
+								result = result.add(ele);
+							}
+						});
+						cy.edges(':selected').unselect();
+						result.select();
+					}
+				}
+				else{
+					alert("Input Error!")
+				}
+			}
+		};
+	</script>
+
+	<!--#功能注释-->
+	<script>
+		$('#infoMenu li a').add('#infoList li a').click(function(){
+			var URL = 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=';
+			var gene = cy.nodes(':selected').data("name");
+			var infoName = $(this).attr('value');
+			var divstyle = document.getElementById("info");
+			divstyle.style.cssText="display:block";
+			document.getElementById("iframe").src = URL + gene + "#" + infoName;
+			var iframe = document.getElementById('iframe').contentWindow;
+			<!--alert(iframe.contentWindow.document.find("#function"));-->
+			<!--$("iframe").contents().find("#gc-subsection");-->
+			window.onload = (function () {
+				alert(document.frames["iframe"].document.getElementsByID("#function"));
+			});
+			<!--document.frames["iframe"].document.getElementById("#function")-->
+		});
+	</script>
+</body>
+</html>

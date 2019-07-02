@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cytoscape.js</title>
+	<link rel="shortcut icon" href="#" />
+	<script src="/static/js/jquery-3.3.1.min.js"></script>
+	<link href="/static/css/style.css" rel="stylesheet" />
+    <script src="/static/js/cytoscape.min.js"></script>
+	<link href="/static/css/jquery-ui.css" rel="stylesheet" />
+  	<script src=/static/js/jquery-ui.js></script>
+</head>
+<body>
+	<div id="header" style="border:1px solid #e8efe8">
+		<div style="margin-left:60px;">
+			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
+		</div>
+	</div>
+	<div id="content" style="height:400px; width:80%; margin:0 auto;">
+		<!--选择网络-->
+		<div style="width:50%; margin:15px auto;float:left;">
+			<div style="margin-bottom:10px;">
+				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">A. </h3>
+				<input type="file" value="Upload File" id="selectFiles" style="display: none" onchange="return selectFiles()"/>
+				<input type="button" id="upload" value="Upload File" style="margin-left:10px;">
+			</div>
+			<div style="margin-bottom:10px;">
+				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">B. Enter a list of genes </h3>
+			</div>
+			<div id="name_search">
+				<div>
+					<form name="Form1" method="post">
+						<textarea id="name_text" style="width:500px; height:300px" style="OVERFLOW:hidden; margin-bottom:10px;"></textarea>
+						<div style="margin-top:10px; ">
+							<input type="button" id="name_select" value="Submit">
+							<a id="example" style="margin-left:10px;">example</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!--选择网络名称-->
+		<div style="width:50%; margin:15px auto; float:right">
+			<div style="margin-top:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">Choose A Net </h3></div>
+			<div style="height:300px;border:1px solid #A9A9A9 ;margin-top:29px;">
+				<li style="display:none;" id="netli"><a href="#"><br></a>
+					<ul class="dropdown-menu" id='netMenu'></ul>
+				</li>
+			</div>
+<!--			<div style="margin_bottom:10px;"><h3 style="color:#696969; font-weight: normal; font-family: sans-serif;">Net</h3></div>-->
+<!--			<div><select class="net" style="width:100%; height:36px; border: 1px solid #ddd;border-radius: 5px;color:#696969; font-size:16px; font-weight: normal; font-family: sans-serif;margin-top:10px; padding-left: 10px; "  id="menu_net">-->
+<!--				<option value="pam3" selected>Pam3</option>-->
+<!--				<option value="r848" >R848</option>-->
+<!--				<option value="I2D" >I2D</option>-->
+<!--				<option value="HumanNet" >HumanNet</option>-->
+<!--				<option value="HumanSignaling" >HumanSignaling</option>-->
+<!--				</select>-->
+<!--				<input type="button" value="Open" id="net_select" style="margin-top:50px;" >-->
+<!--			</div>-->
+		</div>
+	</div>
+<!--	<div style="width:80%; margin:15px auto;">-->
+<!--		<div style="margin-bottom:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">Results </h3></div>-->
+<!--		<li style="display:none;" id="netli"><a href="#"><br></a>-->
+<!--			<ul class="dropdown-menu" id='netMenu'></ul>-->
+<!--		</li>-->
+<!--	</div>-->
+	<script>
+		var cy = new Object();
+	</script>
+
+<!--	&lt;!&ndash;选择网络&ndash;&gt;-->
+<!--	<script>-->
+<!--	$("#net_select").click(function(){-->
+<!--		var net = document.getElementById("menu_net").value;-->
+<!--		var check = 'all';-->
+<!--		$.ajax({-->
+<!--			type : 'post',-->
+<!--			url : '/select',-->
+<!--			dataType : 'json',-->
+<!--			data : JSON.stringify({'net':net, 'check':check}),-->
+<!--			contentType : 'application/json',-->
+<!--			traditional : true,-->
+<!--			success : function(){-->
+
+<!--			},-->
+<!--			error : function(){-->
+<!--&lt;!&ndash;					alert("error!");&ndash;&gt;-->
+<!--			}-->
+<!--		});-->
+<!--		window.location.href = '/info?net=' + net;-->
+<!--		window.event.returnValue = false;-->
+<!--	})-->
+<!--	</script>-->
+
+<!--例子-->
+	<script>
+	$("#example").click(function(){
+		var exam = 'ARL5C\nCRELD1\nATF7';
+    	document.getElementById("name_text").value = exam;
+	});
+	</script>
+
+<!--名称搜索-->
+	<script>
+		$('#name_select').click(function(){
+			var target = document.getElementById("name_text").value.toUpperCase().split("\n");
+<!--			alert(target);-->
+			var id = $('#menu_id').val();
+			if(target!=null){
+				$.ajax({
+						type : 'post',
+						url : '/search',
+						dataType : 'json',
+						data : JSON.stringify({'target':target}),
+						contentType : 'application/json',
+						traditional : true,
+						success : function(data){
+<!--							alert(data);-->
+						},
+						error : function(){
+<!--							alert("error!");-->
+						}
+				});
+
+				$.get('/search1', function (result){
+					if(result.nets){
+						document.getElementById("netli").style.cssText="display:block";
+						for(var item in result.nets){
+							var li = document.createElement("li");
+							var a = document.createElement("a");
+							a.id = item;
+							a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+							li.append(a);
+							$("#netMenu").append(li);
+
+							var label1 = document.createElement("label");
+    						label1.innerHTML= '<input id="neighbor" type="checkbox">'+ "Neighbor" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+    						li.append(label1);
+    						var label2 = document.createElement("label");
+    						label2.innerHTML= '<input id="selected" type="checkbox">'+ "Selected" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+    						li.append(label2);
+							var label3 = document.createElement("label");
+    						label3.innerHTML= '<input id="all" type="checkbox">'+ "All<br><br>" ;
+    						li.append(label3);
+						};
+					}
+				}, 'json');
+			}
+			else{
+				alert("'"+target+"' is not in the graph!");
+			}
+		return false;
+		});
+	</script>
+
+<!--选择网络-->
+	<script>
+		$('#netMenu').delegate("a","click",function(){
+			var net = $(this).attr("id");
+			var target = document.getElementById("name_text").value.toUpperCase().split("\n");
+			var check = 0;
+			if($("input[type='checkbox']").is(':checked')==true){
+				check = $("input[type='checkbox']:checked").attr("id");
+			}
+			window.location.href = '/info?nodes=' + target + '&check=' + check;
+			$.ajax({
+				type : 'post',
+				url : '/select',
+				dataType : 'json',
+				data : JSON.stringify({'net':net, 'check':check}),
+				contentType : 'application/json',
+				traditional : true,
+				success : function(data){
+
+				},
+				error : function(){
+<!--					alert("error!");-->
+				}
+			});
+		});
+	</script>
+
+<!--上传文件-->
+	<script>
+		$("#upload").click(function(){
+			$("#selectFiles").click();
+		});
+		function selectFiles(){
+			var file = document.getElementById("selectFiles").files[0];
+			var reader = new FileReader();
+			reader.readAsText(file);
+			reader.onload = function(oFREvent){
+				target = oFREvent.target.result.toUpperCase().split(",");
+				document.getElementById('name_text').innerText =  target;
+				if(target!=null){
+					$.ajax({
+						type : 'post',
+						url : '/search',
+						dataType : 'json',
+						data : JSON.stringify({'target':target}),
+						contentType : 'application/json',
+						traditional : true,
+						success : function(data){
+<!--							alert(data);-->
+						},
+						error : function(){
+<!--							alert("error!");-->
+						}
+					});
+
+					$.get('/search1', function (result){
+						if(result.nets){
+							document.getElementById("netli").style.cssText="display:block";
+							for(var item in result.nets){
+								var li = document.createElement("li");
+								var a = document.createElement("a");
+								a.id = item;
+								a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+								li.append(a);
+								$("#netMenu").append(li);
+
+								var label1 = document.createElement("label");
+								label1.innerHTML= '<input id="neighbor" type="checkbox">'+ "Neighbor" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+								li.append(label1);
+								var label2 = document.createElement("label");
+								label2.innerHTML= '<input id="selected" type="checkbox">'+ "Selected" +"&nbsp;&nbsp;&nbsp;&nbsp;";
+								li.append(label2);
+								var label3 = document.createElement("label");
+								label3.innerHTML= '<input id="all" type="checkbox">'+ "All<br><br>" ;
+								li.append(label3);
+							};
+						}
+					}, 'json');
+				}
+				else{
+					alert("'"+target+"' is not in the graph!");
+				}
+			}
+		}
+	</script>
+</body>
+</html>
