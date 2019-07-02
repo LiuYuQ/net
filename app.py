@@ -24,8 +24,8 @@ def buildEdges(relationRecord):
 def buildEdges1(relationRecord):
     data = {"source": str(re.findall(r"start='node/(.*?)'", str(relationRecord[0]))[0]),
             "target": str(re.findall(r"end='node/(.*?)'", str(relationRecord[0]))[0]),
-            "relationship": str(re.findall(r"type='(.*?)'", str(relationRecord[0]))[0]),
-            "weight":  str(re.findall(r"weight': '(.*?)'", str(relationRecord[0]))[0])}
+            "relationship": str(re.findall(r"type='(.*?)'", str(relationRecord[0]))[0])}
+            # "weight":  str(re.findall(r"weight': '(.*?)'", str(relationRecord[0]))[0])}
     return {"data": data}
 
 @app.route('/')
@@ -35,7 +35,7 @@ def index():
 @app.route('/search',methods=['POST'])
 def search():
     global target
-    target = request.get_json()["target"]
+    target = tuple(request.get_json()['target'])
     return target
 
 @app.route('/search1')
@@ -50,12 +50,14 @@ def search1():
         res = re.findall(p1, net)
         result.append(res)
     result = sum(result,[])
+    # print ("res",result)
     data = {}
     for key in result:
         key = str(key.replace("'", ""))
         netset.append(key)
     for key in netset:
         data[key] = data.get(key, 0) + 1
+    # print("data",data)
     return jsonify(nets = data)
 
 @app.route('/select',methods=['POST'])

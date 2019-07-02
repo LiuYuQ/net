@@ -17,7 +17,7 @@ a:hover{
 #cy {
 	width: 100%;
     margin-top : 0px;
-    height: 470px;
+    height: 450px;
     text-align: left;
     background-color: #f9f9f9;
 }
@@ -34,25 +34,25 @@ a:hover{
 
 #content {
     width: 100%;
-    height:500px;
+    height:470px;
 }
 
 #left_comp{
-	height: 500px;
+	height: 480px;
 	background-color: #f8f8f8;
 	width:220px;
 	float:left;
 }
 
 #right_comp{
-	height: 500px;
+	height: 480px;
 	margin-left: 300px;
 	weight:800px;
 	background-color: #eee;
     position:relative
 }
 
-input[type="button"]{
+input[type="button"], input[type="submit"]{
     text-decoration:none;
     background:#0080FF;
     color:white;
@@ -136,7 +136,7 @@ option{
 	display: block;
 	border-right: 1px solid #333;
 	color: #000;
-	width: 100px;
+	width: 120px;
 	height: 30px;
 	line-height: 30px;
 	text-align: center;
@@ -200,4 +200,12 @@ input[type="range"]::-webkit-slider-thumb {
 	border: solid 1px #555; /*设置边框*/
 }
 
+#netMenu li{
+    line-height:30px;
+    letter-spacing:1px;
+    clear:both;
+}
 
+select{
+    height:22px;
+}

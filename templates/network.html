@@ -15,7 +15,7 @@
 			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
 		</div>
 	</div>
-    <div id="content" style="height:400px; width:80%; margin:0 auto;">
+    <div id="content" style="height:500px; width:80%; margin:0 auto;">
 		<div id="left_comp" style="border:solid 1px #e8efe8">
 			<div>
 				<form>
@@ -23,12 +23,13 @@
 					<div class="toggle">
 						<div class="toggle_title"><p>Net</p></div>
 						<div class="toggle_select" >
+                            <div>
+                                <input id="neighbor" type="checkbox">Neighbor<br>
+                                <input id="selected" type="checkbox">Selected<br>
+                                <input id="all" type="checkbox">All
+                            </div>
 							<div><select class="net"  style="width:160px" id="menu_net">
-								<option value="pam3" selected>Pam3</option>
-								<option value="r848" >R848</option>
-								<option value="I2D" >I2D</option>
-								<option value="HumanNet" >HumanNet</option>
-								<option value="HumanSignaling" >HumanSignaling</option>
+								<option value="default" selected>Choose a new net</option>
 								</select>
 								<input type="button" style="width:160px; background:#f8f8f8;color:black;margin-top:5px;" value="Open" id="net_select">
 							</div>
@@ -40,7 +41,7 @@
 					<div class="toggle">
 						<div class="toggle_title"><p>Gene Label</p></div>
 						<div class="toggle_select">
-							<div><select class="label" id="menu_label" style="width:160px" onchange="labelSelect(this.id)">
+							<div><select class="label" id="menu_label" style="width:160px; margin-top:10px;" onchange="labelSelect(this.id)">
 								<option selected>Please Choose</option>
 								<option value="a">a</option>
 								<option value="b">b</option>
@@ -55,7 +56,7 @@
 					<div class="toggle">
 						<div class="toggle_title"><p>Filter</p></div>
 						<div class="toggle_select">
-							<div><select class="filter" id="filter" style="width:160px" onchange="filter_column(this.id)">
+							<div><select class="filter" id="filter" style="width:160px;margin-top:10px;" onchange="filter_column(this.id)">
 								<option selected>Please Choose Column</option>
 								<option value="exp">Node:exp</option>
 								<option value="weight">Edge:weight</option>
@@ -107,7 +108,7 @@
 			<div id="cy"></div>
 		</div>
 	</div>
-	<div id="info" style="display:none;border-top:10px;">
+	<div id="info" style="width:80%; margin:0 auto;display:none;">
 		<div><ul class="dropdown" id="infoList">
 			<li><a id="expression" value="expression">Expression</a></li>
 			<li><a id="function" value="function">Function</a></li>
@@ -124,15 +125,29 @@
 		var cy = new Object();
 	</script>
 
+    <script>
+    $(function(){
+        $.get('/search1', function (result){
+            for(var item in result.nets){
+                $("#menu_net").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
+            };
+         }, 'json');
+    });
+    </script>
+
    	<!--选择网络-->
 	<script>
 	$("#net_select").click(function(){
 		var net = document.getElementById("menu_net").value;
+		var check = 0;
+			if($("input[type='checkbox']").is(':checked')==true){
+				check = $("input[type='checkbox']:checked").attr("id");
+			}
 		$.ajax({
 			type : 'post',
 			url : '/select',
 			dataType : 'json',
-			data : JSON.stringify({'net':net}),
+			data : JSON.stringify({'net':net, 'check':check}),
 			contentType : 'application/json',
 			traditional : true,
 			success : function(){
@@ -142,7 +157,7 @@
 <!--					alert("error!");-->
 			}
 		});
-		window.location.href='/info';
+		window.location.href='/info?net=' + net + '&check=' + check;
 		window.event.returnValue=false;
 	})
 	</script>
@@ -224,12 +239,13 @@
 
     <script>
         window.onload=function (){
-            function GetQueryString(name){
-                 var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-                 var r = window.location.search.substr(1).match(reg); //search,查询？后面的参数，并匹配正则
-                 if(r!=null)return  unescape(r[2]); return null;
-            };
-            var nodes = GetQueryString('nodes').split(',');
+<!--            function GetQueryString(name){-->
+<!--                 var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");-->
+<!--                 var r = window.location.search.substr(1).match(reg); //search,查询？后面的参数，并匹配正则-->
+<!--                 if(r!=null)return  unescape(r[2]); return null;-->
+<!--            };-->
+<!--            var nodes = GetQueryString('nodes').split(',');-->
+            var nodes = sessionStorage.getItem("nodes").split(',');
             var result = cy.collection();
             for(var i in nodes){
 				cy.nodes().forEach(function(ele){

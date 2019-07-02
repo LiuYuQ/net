@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Cytoscape.js</title>
+	<title>Network Visualization</title>
 	<link rel="shortcut icon" href="#" />
 	<script src="/static/js/jquery-3.3.1.min.js"></script>
 	<link href="/static/css/style.css" rel="stylesheet" />
@@ -15,7 +15,7 @@
 			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
 		</div>
 	</div>
-	<div id="content" style="height:400px; width:80%; margin:0 auto;">
+	<div id="content" style="height:500px; width:80%; margin:0 auto;">
 		<!--选择网络-->
 		<div style="width:50%; margin:15px auto;float:left;">
 			<div style="margin-bottom:10px;">
@@ -24,14 +24,14 @@
 				<input type="button" id="upload" value="Upload File" style="margin-left:10px;">
 			</div>
 			<div style="margin-bottom:10px;">
-				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">B. Enter a list of genes </h3>
+				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">B.  Enter a list of genes </h3>
 			</div>
 			<div id="name_search">
 				<div>
 					<form name="Form1" method="post">
-						<textarea id="name_text" style="width:500px; height:300px" style="OVERFLOW:hidden; margin-bottom:10px;"></textarea>
+						<textarea id="name_text" style="width:500px; height:300px; OVERFLOW:hidden; margin-bottom:20px;margin-top:20px;"></textarea>
 						<div style="margin-top:10px; ">
-							<input type="button" id="name_select" value="Submit">
+							<input type="submit" id="name_select" value="Submit">
 							<a id="example" style="margin-left:10px;">example</a>
 						</div>
 					</form>
@@ -41,9 +41,14 @@
 
 		<!--选择网络名称-->
 		<div style="width:50%; margin:15px auto; float:right">
-			<div style="margin-top:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">Choose A Net </h3></div>
-			<div style="height:300px;border:1px solid #A9A9A9 ;margin-top:29px;">
-				<li style="display:none;" id="netli"><a href="#"><br></a>
+			<div style="margin-top:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">C. Choose A Net </h3></div>
+            <div style="margin-top:10px;margin-left:20px;">
+                <input id="neighbor" type="checkbox">&nbsp;&nbsp;Neighbor (Default)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input id="selected" type="checkbox">&nbsp;&nbsp;Selected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    			<input id="all" type="checkbox">&nbsp;&nbsp;All
+            </div>
+			<div style="height:300px;border:1px solid #A9A9A9 ;margin-top:18px;">
+				<li style="display:none;" id="netli"><a href="#"></a>
 					<ul class="dropdown-menu" id='netMenu'></ul>
 				</li>
 			</div>
@@ -104,8 +109,14 @@
 <!--名称搜索-->
 	<script>
 		$('#name_select').click(function(){
-			var target = document.getElementById("name_text").value.toUpperCase().split("\n");
-<!--			alert(target);-->
+			var target = document.getElementById("name_text").value.toUpperCase().split(/[\n\s+,]/g);
+			for (var i = 0; i < target.length; i++) {
+				if (target[i] == "") {
+					target.splice(i, 1);
+					i--;
+				}
+			}
+			sessionStorage.setItem("nodes", target);
 			var id = $('#menu_id').val();
 			if(target!=null){
 				$.ajax({
@@ -133,16 +144,6 @@
 							a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
 							li.append(a);
 							$("#netMenu").append(li);
-
-							var label1 = document.createElement("label");
-    						label1.innerHTML= '<input id="neighbor" type="checkbox">'+ "Neighbor" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-    						li.append(label1);
-    						var label2 = document.createElement("label");
-    						label2.innerHTML= '<input id="selected" type="checkbox">'+ "Selected" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-    						li.append(label2);
-							var label3 = document.createElement("label");
-    						label3.innerHTML= '<input id="all" type="checkbox">'+ "All<br><br>" ;
-    						li.append(label3);
 						};
 					}
 				}, 'json');
@@ -150,6 +151,7 @@
 			else{
 				alert("'"+target+"' is not in the graph!");
 			}
+		$(this).attr('disabled','disabled');
 		return false;
 		});
 	</script>
@@ -163,7 +165,7 @@
 			if($("input[type='checkbox']").is(':checked')==true){
 				check = $("input[type='checkbox']:checked").attr("id");
 			}
-			window.location.href = '/info?nodes=' + target + '&check=' + check;
+			window.location.href = '/info?net=' + net + '&check=' + check;
 			$.ajax({
 				type : 'post',
 				url : '/select',
@@ -191,7 +193,14 @@
 			var reader = new FileReader();
 			reader.readAsText(file);
 			reader.onload = function(oFREvent){
-				target = oFREvent.target.result.toUpperCase().split(",");
+				target = oFREvent.target.result.toUpperCase().split(/[\n\s+,]/g);
+				for (var i = 0; i < target.length; i++) {
+					if (target[i] == "") {
+						target.splice(i, 1);
+						i--;
+					}
+				}
+				sessionStorage.setItem("nodes", target);
 				document.getElementById('name_text').innerText =  target;
 				if(target!=null){
 					$.ajax({
@@ -219,16 +228,6 @@
 								a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
 								li.append(a);
 								$("#netMenu").append(li);
-
-								var label1 = document.createElement("label");
-								label1.innerHTML= '<input id="neighbor" type="checkbox">'+ "Neighbor" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-								li.append(label1);
-								var label2 = document.createElement("label");
-								label2.innerHTML= '<input id="selected" type="checkbox">'+ "Selected" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-								li.append(label2);
-								var label3 = document.createElement("label");
-								label3.innerHTML= '<input id="all" type="checkbox">'+ "All<br><br>" ;
-								li.append(label3);
 							};
 						}
 					}, 'json');
