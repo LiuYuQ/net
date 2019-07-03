@@ -36,7 +36,7 @@ def index():
 def search():
     global target
     target = tuple(request.get_json()['target'])
-    return target
+    return jsonify({'status': '0', 'errmsg': 'succeed!'})
 
 @app.route('/search1')
 def search1():
@@ -65,8 +65,7 @@ def select():
     global lab, check
     lab = str(request.get_json()['net'])
     check = str(request.get_json()['check'])
-    # return json.dumps(net, ensure_ascii=False)
-    return lab, check
+    return jsonify({'status': '0', 'errmsg': 'succeed!'})
 
 @app.route('/graph')
 def get_graph():
