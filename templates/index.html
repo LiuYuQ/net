@@ -12,27 +12,24 @@
 <body>
 	<div id="header" style="border:1px solid #e8efe8">
 		<div style="margin-left:60px;">
-			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
+			<h1 style="color:white; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
 		</div>
 	</div>
-	<div id="content" style="height:500px; width:80%; margin:0 auto;">
+	<div id="content" style="width:70%; margin:0 auto; ">
 		<!--选择网络-->
-		<div style="width:50%; margin:15px auto;float:left;">
-			<div style="margin-bottom:10px;">
-				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">A. </h3>
+		<div style="margin-top:15px;border:1px solid #e8efe8; background-color:#f8f8f8;">
+			<div style="margin:10px auto;">
+				<h3 style="color:#404040; font-weight: bold; font-family: sans-serif; height:30px;">Step1. Input data</h3>
+				<h4 style="font-weight: normal; font-family: sans-serif; margin-left:290px;float:left;line-height: 30px;">Enter a list of genes Or</h4>
 				<input type="file" value="Upload File" id="selectFiles" style="display: none" onchange="return selectFiles()"/>
-				<input type="button" id="upload" value="Upload File" style="margin-left:10px;">
-			</div>
-			<div style="margin-bottom:10px;">
-				<h3 style="color:#696969; font-weight: normal; font-family: sans-serif; float:left;">B.  Enter a list of genes </h3>
-			</div>
-			<div id="name_search">
-				<div>
-					<form name="Form1" method="post">
-						<textarea id="name_text" style="width:500px; height:300px; OVERFLOW:hidden; margin-bottom:20px;margin-top:20px;"></textarea>
-						<div style="margin-top:10px; ">
-							<input type="submit" id="name_select" value="Submit">
-							<a id="example" style="margin-left:10px;">example</a>
+				<input type="button" id="upload" value="Upload gene file" style="margin-left:10px;display:inline;">
+
+				<div id="name_search" style="text-align:center;">
+					<form name="Form1" method="get">
+						<textarea id="name_text" style="width:500px; height:200px; OVERFLOW:hidden; margin:15px auto;"></textarea>
+						<div style="margin-left:50px; ">
+							<input type="submit" id="name_select" value="Submit" style="margin-left:70px;">
+							<a id="example" style="margin-left:50px;color:#0080FF;">example</a>
 						</div>
 					</form>
 				</div>
@@ -40,36 +37,24 @@
 		</div>
 
 		<!--选择网络名称-->
-		<div style="width:50%; margin:15px auto; float:right">
-			<div style="margin-top:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">C. Choose A Net </h3></div>
-            <div style="margin-top:10px;margin-left:20px;">
-                <input id="neighbor" type="checkbox">&nbsp;&nbsp;Neighbor (Default)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input id="selected" type="checkbox">&nbsp;&nbsp;Selected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    			<input id="all" type="checkbox">&nbsp;&nbsp;All
-            </div>
-			<div style="height:300px;border:1px solid #A9A9A9 ;margin-top:18px;">
-				<li style="display:none;" id="netli"><a href="#"></a>
-					<ul class="dropdown-menu" id='netMenu'></ul>
-				</li>
+		<div id="choose_net" style="margin:15px auto;border:1px solid #e8efe8; background-color:#f8f8f8;">
+			<div style="margin:10px auto;">
+				<div style="margin：10px auto;"><h3 style="text-align:left; color:#404040; font-weight: bold; font-family: sans-serif;">Step2. Choose A Net </h3></div>
+				<div style="height:40px;text-align:center;">
+					<input id="neighbor" type="checkbox">&nbsp;&nbsp;Neighbor (Default)
+					<input id="selected" type="checkbox" style="margin-left:20px;">&nbsp;&nbsp;Selected
+					<input id="all" type="checkbox" style="margin-left:50px;">&nbsp;&nbsp;All
+				</div>
+				<div style="text-align:center;">
+					<select id="net_list" style="width: 500px;height:35px;" >
+					<option class ="net" value="default" disabled selected style='display:none;'>Choose a net</option>
+					</select><br>
+					<input type="button" value="Visualize" id="visualize" style="margin:20px;">
+				</div>
 			</div>
-<!--			<div style="margin_bottom:10px;"><h3 style="color:#696969; font-weight: normal; font-family: sans-serif;">Net</h3></div>-->
-<!--			<div><select class="net" style="width:100%; height:36px; border: 1px solid #ddd;border-radius: 5px;color:#696969; font-size:16px; font-weight: normal; font-family: sans-serif;margin-top:10px; padding-left: 10px; "  id="menu_net">-->
-<!--				<option value="pam3" selected>Pam3</option>-->
-<!--				<option value="r848" >R848</option>-->
-<!--				<option value="I2D" >I2D</option>-->
-<!--				<option value="HumanNet" >HumanNet</option>-->
-<!--				<option value="HumanSignaling" >HumanSignaling</option>-->
-<!--				</select>-->
-<!--				<input type="button" value="Open" id="net_select" style="margin-top:50px;" >-->
-<!--			</div>-->
 		</div>
 	</div>
-<!--	<div style="width:80%; margin:15px auto;">-->
-<!--		<div style="margin-bottom:10px;"><h3 style="text-align:left; color:#696969; font-weight: normal; font-family: sans-serif;">Results </h3></div>-->
-<!--		<li style="display:none;" id="netli"><a href="#"><br></a>-->
-<!--			<ul class="dropdown-menu" id='netMenu'></ul>-->
-<!--		</li>-->
-<!--	</div>-->
+
 	<script>
 		var cy = new Object();
 	</script>
@@ -136,14 +121,8 @@
 
 				$.get('/search1', function (result){
 					if(result.nets){
-						document.getElementById("netli").style.cssText="display:block";
 						for(var item in result.nets){
-							var li = document.createElement("li");
-							var a = document.createElement("a");
-							a.id = item;
-							a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-							li.append(a);
-							$("#netMenu").append(li);
+							$("#net_list").append("<option class ='net' value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
 						};
 					}
 				}, 'json');
@@ -152,20 +131,21 @@
 				alert("'"+target+"' is not in the graph!");
 			}
 		$(this).attr('disabled','disabled');
+		alert("Submit succeed! Please goto step2");
+		window.location.hash = "#choose_net";
 		return false;
 		});
 	</script>
 
 <!--选择网络-->
 	<script>
-		$('#netMenu').delegate("a","click",function(){
-			var net = $(this).attr("id");
-			var target = document.getElementById("name_text").value.toUpperCase().split("\n");
+		$('#visualize').click(function(){
+			var net = document.getElementById("net_list").value;
 			var check = 0;
 			if($("input[type='checkbox']").is(':checked')==true){
 				check = $("input[type='checkbox']:checked").attr("id");
 			}
-			window.location.href = '/info?net=' + net + '&check=' + check;
+
 			$.ajax({
 				type : 'post',
 				url : '/select',
@@ -174,12 +154,13 @@
 				contentType : 'application/json',
 				traditional : true,
 				success : function(data){
-
+<!--                    alert(data);-->
 				},
 				error : function(){
 <!--					alert("error!");-->
 				}
 			});
+			window.location.href = '/info?net=' + net + '&check=' + check;
 		});
 	</script>
 
@@ -219,18 +200,12 @@
 					});
 
 					$.get('/search1', function (result){
-						if(result.nets){
-							document.getElementById("netli").style.cssText="display:block";
-							for(var item in result.nets){
-								var li = document.createElement("li");
-								var a = document.createElement("a");
-								a.id = item;
-								a.innerHTML = item + "（" + result.nets[item] + " nodes ）" +"&nbsp;&nbsp;&nbsp;&nbsp;";
-								li.append(a);
-								$("#netMenu").append(li);
-							};
-						}
-					}, 'json');
+					if(result.nets){
+						for(var item in result.nets){
+							$("#net_list").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
+						};
+					}
+				}, 'json');
 				}
 				else{
 					alert("'"+target+"' is not in the graph!");

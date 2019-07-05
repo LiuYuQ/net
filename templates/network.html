@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Cytoscape.js</title>
+	<title>Network Visualization</title>
 	<link rel="shortcut icon" href="#" />
 	<script src="/static/js/jquery-3.3.1.min.js"></script>
 	<link href="/static/css/style.css" rel="stylesheet" />
@@ -12,7 +12,7 @@
 <body>
     <div id="header" style="border:solid 1px #e8efe8">
 		<div style="margin-left:60px;">
-			<h1 style="color:#696969; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
+			<h1 style="color:white; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
 		</div>
 	</div>
     <div id="content" style="height:500px; width:80%; margin:0 auto;">
@@ -29,7 +29,7 @@
                                 <input id="all" type="checkbox">All
                             </div>
 							<div><select class="net"  style="width:160px" id="menu_net">
-								<option value="default" selected>Choose a new net</option>
+								<option value="default" disabled selected style='display:none;'>Choose a new net</option>
 								</select>
 								<input type="button" style="width:160px; background:#f8f8f8;color:black;margin-top:5px;" value="Open" id="net_select">
 							</div>
@@ -42,7 +42,7 @@
 						<div class="toggle_title"><p>Gene Label</p></div>
 						<div class="toggle_select">
 							<div><select class="label" id="menu_label" style="width:160px; margin-top:10px;" onchange="labelSelect(this.id)">
-								<option selected>Please Choose</option>
+								<option disabled selected style='display:none;'>Please Choose</option>
 								<option value="a">a</option>
 								<option value="b">b</option>
 								<option value="c">c</option>
@@ -57,7 +57,7 @@
 						<div class="toggle_title"><p>Filter</p></div>
 						<div class="toggle_select">
 							<div><select class="filter" id="filter" style="width:160px;margin-top:10px;" onchange="filter_column(this.id)">
-								<option selected>Please Choose Column</option>
+								<option disabled selected style='display:none;'>Please Choose Column</option>
 								<option value="exp">Node:exp</option>
 								<option value="weight">Edge:weight</option>
 								</select>
@@ -131,7 +131,7 @@
             for(var item in result.nets){
                 $("#menu_net").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
             };
-         }, 'json');
+        }, 'json');
     });
     </script>
 
@@ -151,7 +151,7 @@
 			contentType : 'application/json',
 			traditional : true,
 			success : function(){
-
+<!--                alert(data);-->
 			},
 			error : function(){
 <!--					alert("error!");-->
