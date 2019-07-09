@@ -23,14 +23,14 @@
 					<div class="toggle">
 						<div class="toggle_title"><p>Net</p></div>
 						<div class="toggle_select" >
-                            <div>
-                                <input id="neighbor" type="checkbox">Neighbor<br>
-                                <input id="selected" type="checkbox">Selected<br>
-                                <input id="all" type="checkbox">All
-                            </div>
 							<div><select class="net"  style="width:160px" id="menu_net">
 								<option value="default" disabled selected style='display:none;'>Choose a new net</option>
 								</select>
+                                <div>
+                                    <input id="neighbor" type="radio" name="net" checked>Neighbor<br>
+                                    <input id="selected" type="radio" name="net">Selected<br>
+                                    <input id="all" type="radio" name="net">All
+                                </div>
 								<input type="button" style="width:160px; background:#f8f8f8;color:black;margin-top:5px;" value="Open" id="net_select">
 							</div>
 						</div>
@@ -125,43 +125,6 @@
 		var cy = new Object();
 	</script>
 
-    <script>
-    $(function(){
-        $.get('/search1', function (result){
-            for(var item in result.nets){
-                $("#menu_net").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
-            };
-        }, 'json');
-    });
-    </script>
-
-   	<!--选择网络-->
-	<script>
-	$("#net_select").click(function(){
-		var net = document.getElementById("menu_net").value;
-		var check = 0;
-			if($("input[type='checkbox']").is(':checked')==true){
-				check = $("input[type='checkbox']:checked").attr("id");
-			}
-		$.ajax({
-			type : 'post',
-			url : '/select',
-			dataType : 'json',
-			data : JSON.stringify({'net':net, 'check':check}),
-			contentType : 'application/json',
-			traditional : true,
-			success : function(){
-<!--                alert(data);-->
-			},
-			error : function(){
-<!--					alert("error!");-->
-			}
-		});
-		window.location.href='/info?net=' + net + '&check=' + check;
-		window.event.returnValue=false;
-	})
-	</script>
-
 	<!--显示网络-->
     <script>
     $(function(){
@@ -235,27 +198,19 @@
             });
         }, 'json');
     });
-    </script>
 
-    <script>
-        window.onload=function (){
-<!--            function GetQueryString(name){-->
-<!--                 var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");-->
-<!--                 var r = window.location.search.substr(1).match(reg); //search,查询？后面的参数，并匹配正则-->
-<!--                 if(r!=null)return  unescape(r[2]); return null;-->
-<!--            };-->
-<!--            var nodes = GetQueryString('nodes').split(',');-->
-            var nodes = sessionStorage.getItem("nodes").split(',');
-            var result = cy.collection();
-            for(var i in nodes){
-				cy.nodes().forEach(function(ele){
-					if(ele.data("name") == nodes[i]){
-						result = result.add(ele);
-					}
-				})
-			}
-            cy.nodes(':selected').unselect();
-            result.select();
+    window.onload=function (){
+        var nodes = sessionStorage.getItem("nodes").split(',');
+        var result = cy.collection();
+        for(var i in nodes){
+            cy.nodes().forEach(function(ele){
+                if(ele.data("name") == nodes[i]){
+                    result = result.add(ele);
+                }
+            })
+        }
+        cy.nodes(':selected').unselect();
+        result.select();
 <!--            cy.reset();-->
 <!--            cy.center(result);-->
 <!--            cy.zoom({-->
@@ -264,6 +219,42 @@
 <!--            });-->
         };
     </script>
+
+    <script>
+    $(function(){
+        $.get('/search1', function (result){
+            for(var item in result.nets){
+                $("#menu_net").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
+            };
+        }, 'json');
+    });
+    </script>
+
+   	<!--选择网络-->
+	<script>
+	$("#net_select").click(function(){
+		var net = document.getElementById("menu_net").value;
+		var check = 0;
+		check = $("input[type='radio']:checked").attr("id");
+
+		$.ajax({
+			type : 'post',
+			url : '/select',
+			dataType : 'json',
+			data : JSON.stringify({'net':net, 'check':check}),
+			contentType : 'application/json',
+			traditional : true,
+			success : function(){
+<!--                alert(data);-->
+			},
+			error : function(){
+<!--					alert("error!");-->
+			}
+		});
+		window.location.href='/info?net=' + net + '&check=' + check;
+		window.event.returnValue=false;
+	})
+	</script>
 
     <!--选择标签-->
 	<script>

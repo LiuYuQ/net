@@ -41,9 +41,9 @@
 			<div style="margin:10px auto;">
 				<div style="margin：10px auto;"><h3 style="text-align:left; color:#404040; font-weight: bold; font-family: sans-serif;">Step2. Choose A Net </h3></div>
 				<div style="height:40px;text-align:center;">
-					<input id="neighbor" type="checkbox">&nbsp;&nbsp;Neighbor (Default)
-					<input id="selected" type="checkbox" style="margin-left:20px;">&nbsp;&nbsp;Selected
-					<input id="all" type="checkbox" style="margin-left:50px;">&nbsp;&nbsp;All
+					<input id="neighbor" type="radio" name="net" checked>&nbsp;&nbsp;Neighbor (Default)
+					<input id="selected" type="radio" name="net" style="margin-left:20px;">&nbsp;&nbsp;Selected
+					<input id="all" type="radio" name="net" style="margin-left:50px;">&nbsp;&nbsp;All
 				</div>
 				<div style="text-align:center;">
 					<select id="net_list" style="width: 500px;height:35px;" >
@@ -142,9 +142,7 @@
 		$('#visualize').click(function(){
 			var net = document.getElementById("net_list").value;
 			var check = 0;
-			if($("input[type='checkbox']").is(':checked')==true){
-				check = $("input[type='checkbox']:checked").attr("id");
-			}
+			check = $("input[type='radio']:checked").attr("id");
 
 			$.ajax({
 				type : 'post',
@@ -211,6 +209,8 @@
 					alert("'"+target+"' is not in the graph!");
 				}
 			}
+		alert("Upload succeed! Please goto step2");
+		window.location.hash = "#choose_net";
 		}
 	</script>
 </body>
