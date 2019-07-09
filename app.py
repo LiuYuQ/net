@@ -44,7 +44,7 @@ def buildEdges3(relationRecord):
 def buildEdges4(relationRecord):
     data = {"source": str(re.findall(r'n(.*?):', str(relationRecord[0]))[0]),
             "target": str(re.findall(r'n(.*?):', str(relationRecord[2]))[0]),
-            "relationship": str(re.findall(r":(.*?) {name", str(relationRecord[0]))[0])}
+            "relationship": str(re.findall(r":(.*?) {", str(relationRecord[0]))[0])}
     return {"data": data}
 
 @app.route('/')
@@ -194,7 +194,7 @@ def get_graph():
                 for j in target:
                     params2 = dict(source=i, target=j)
                     if graph.cypher.execute(query2, params2):
-                        edges.append(list(map(buildEdges2, graph.cypher.execute(query2, params2))))
+                        edges.append(list(map(buildEdges4, graph.cypher.execute(query2, params2))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
             return jsonify(elements={"nodes": nodes, "edges": edges})
@@ -225,7 +225,8 @@ def get_graph():
                 for j in target:
                     params2 = dict(source=i, target=j)
                     if graph.cypher.execute(query2, params2):
-                        edges.append(list(map(buildEdges2, graph.cypher.execute(query2, params2))))
+                        edges.append(list(map(buildEdges4, graph.cypher.execute(query2, params2))))
+                        # print(graph.cypher.execute(query2, params2))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
             return jsonify(elements={"nodes": nodes, "edges": edges})
