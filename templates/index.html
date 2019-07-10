@@ -10,12 +10,12 @@
   	<script src=/static/js/jquery-ui.js></script>
 </head>
 <body>
-	<div id="header" style="border:1px solid #e8efe8">
+	<div id="header">
 		<div style="margin-left:60px;">
-			<h1 style="color:white; line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
+			<h1 style="line-height: 70px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
 		</div>
 	</div>
-	<div id="content" style="width:70%; margin:0 auto; ">
+	<div id="content" style="width:70%;margin:0 auto; ">
 		<!--选择网络-->
 		<div style="margin-top:15px;border:1px solid #e8efe8; background-color:#f8f8f8;">
 			<div style="margin:10px auto;">
@@ -103,7 +103,7 @@
 			}
 			sessionStorage.setItem("nodes", target);
 			var id = $('#menu_id').val();
-			if(target!=null){
+			if(target!=''){
 				$.ajax({
 						type : 'post',
 						url : '/search',
@@ -120,19 +120,23 @@
 				});
 
 				$.get('/search1', function (result){
-					if(result.nets){
-						for(var item in result.nets){
-							$("#net_list").append("<option class ='net' value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
-						};
-					}
+				    if(jQuery.isEmptyObject(result.nets)){
+				        alert("'"+target+"' is not in the databases!");
+				    }
+				    else{
+                        for(var item in result.nets){
+                            $("#net_list").append("<option class ='net' value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
+                        }
+                        alert("Submit succeed! Please goto step2");
+                        $('#name_select').attr('disabled','disabled');
+                        window.location.hash = "#choose_net";
+                    };
 				}, 'json');
+
 			}
 			else{
-				alert("'"+target+"' is not in the graph!");
+				alert("Please enter a list of genes or upload gene files!");
 			}
-		$(this).attr('disabled','disabled');
-		alert("Submit succeed! Please goto step2");
-		window.location.hash = "#choose_net";
 		return false;
 		});
 	</script>
@@ -181,9 +185,9 @@
 				}
 				sessionStorage.setItem("nodes", target);
 				document.getElementById('name_text').innerText =  target;
-				if(target!=null){
+				if(target!=''){
 					$.ajax({
-						type : 'post',
+					    type : 'post',
 						url : '/search',
 						dataType : 'json',
 						data : JSON.stringify({'target':target}),
@@ -198,19 +202,23 @@
 					});
 
 					$.get('/search1', function (result){
-					if(result.nets){
-						for(var item in result.nets){
-							$("#net_list").append("<option value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
-						};
-					}
-				}, 'json');
-				}
-				else{
-					alert("'"+target+"' is not in the graph!");
-				}
-			}
-		alert("Upload succeed! Please goto step2");
-		window.location.hash = "#choose_net";
+                        if(jQuery.isEmptyObject(result.nets)){
+                            alert("'"+target+"' is not in the databases!");
+                        }
+                        else{
+                            for(var item in result.nets){
+                                $("#net_list").append("<option class ='net' value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
+                            }
+                            alert("Submit succeed! Please goto step2");
+                            $('#name_select').attr('disabled','disabled');
+                            window.location.hash = "#choose_net";
+                        };
+                    }, 'json');
+                }
+                else{
+                    alert("Please enter a list of genes or upload gene files!");
+                }
+            }
 		}
 	</script>
 </body>

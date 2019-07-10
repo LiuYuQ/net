@@ -29,14 +29,19 @@ a:hover{
     text-align:left;
     height:60px;
     width:100%;
-    background-color:#696969;
+    /*background-color:rgba(23,23,23,0.2);*/
 }
 
 #content {
     width: 100%;
-    height:470px;
+    height:100%;
 }
 
+body {
+
+    background: url("../images/timg111.jpg") no-repeat;
+    background-size: 100% 100%;
+}
 
 #left_comp{
 	height: 480px;
