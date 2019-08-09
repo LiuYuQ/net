@@ -110,6 +110,7 @@ def get_graph():
             edges.append(list(map(buildEdges, graph.cypher.execute('MATCH ()-[r:pam3]->() RETURN r'))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
         else:
             query1 = 'MATCH (m:pam3{name:$tar})-[r*..1]-(n) return n'
             query2 = 'MATCH (n:pam3{name:$tar})-[r*..1]-(m) return r'
@@ -121,6 +122,7 @@ def get_graph():
                 edges.append(list(map(buildEdges1, graph.cypher.execute(query2, params))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
     # ——————————————————————————————————————————————————————
     elif lab=='r848':
         if check == 'selected':
@@ -141,6 +143,7 @@ def get_graph():
             edges.append(list(map(buildEdges, graph.cypher.execute('MATCH ()-[r:r848]->() RETURN r'))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
         else:
             query1 = 'MATCH (m:r848{name:$tar})-[r*..1]-(n) return n'
             query2 = 'MATCH (n:r848{name:$tar})-[r*..1]-(m) return r'
@@ -152,6 +155,7 @@ def get_graph():
                 edges.append(list(map(buildEdges1, graph.cypher.execute(query2, params))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
     # ——————————————————————————————————————————————————————
     elif lab=='I2D':
         if check == 'selected':
@@ -183,6 +187,7 @@ def get_graph():
                 edges.append(list(map(buildEdges3, graph.cypher.execute(query2, params))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
     # ——————————————————————————————————————————————————————
     elif lab=='HumanNet':
         if check == 'selected':
@@ -214,6 +219,7 @@ def get_graph():
                 edges.append(list(map(buildEdges1, graph.cypher.execute(query2, params))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
+            return jsonify(elements={"nodes": nodes, "edges": edges})
     # ——————————————————————————————————————————————————————
     else:
         if check == 'selected':
@@ -246,11 +252,11 @@ def get_graph():
                 edges.append(list(map(buildEdges3, graph.cypher.execute(query2, params))))
             nodes = sum(nodes, [])
             edges = sum(edges, [])
-    return jsonify(elements={"nodes": nodes, "edges": edges})
+            return jsonify(elements={"nodes": nodes, "edges": edges})
 
 @app.route('/info')
 def network():
     return render_template('network.html')
 
 if __name__ == '__main__':
-    app.run(debug = True,port=8000)
+    app.run(debug=True, port=8000)

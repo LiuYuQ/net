@@ -59,30 +59,6 @@
 		var cy = new Object();
 	</script>
 
-<!--	&lt;!&ndash;选择网络&ndash;&gt;-->
-<!--	<script>-->
-<!--	$("#net_select").click(function(){-->
-<!--		var net = document.getElementById("menu_net").value;-->
-<!--		var check = 'all';-->
-<!--		$.ajax({-->
-<!--			type : 'post',-->
-<!--			url : '/select',-->
-<!--			dataType : 'json',-->
-<!--			data : JSON.stringify({'net':net, 'check':check}),-->
-<!--			contentType : 'application/json',-->
-<!--			traditional : true,-->
-<!--			success : function(){-->
-
-<!--			},-->
-<!--			error : function(){-->
-<!--&lt;!&ndash;					alert("error!");&ndash;&gt;-->
-<!--			}-->
-<!--		});-->
-<!--		window.location.href = '/info?net=' + net;-->
-<!--		window.event.returnValue = false;-->
-<!--	})-->
-<!--	</script>-->
-
 <!--例子-->
 	<script>
 	$("#example").click(function(){
@@ -129,6 +105,7 @@
                         }
                         alert("Submit succeed! Please goto step2");
                         $('#name_select').attr('disabled','disabled');
+                        $('#upload').attr('disabled','disabled');
                         window.location.hash = "#choose_net";
                     };
 				}, 'json');
@@ -184,7 +161,8 @@
 					}
 				}
 				sessionStorage.setItem("nodes", target);
-				document.getElementById('name_text').innerText =  target;
+<!--				document.getElementById('name_text').innerText =  target;-->
+				$('#name_select').attr('disabled','disabled');
 				if(target!=''){
 					$.ajax({
 					    type : 'post',
@@ -209,8 +187,7 @@
                             for(var item in result.nets){
                                 $("#net_list").append("<option class ='net' value=" + item + ">" +item + "（" + result.nets[item] + " nodes ）"+"</option>");
                             }
-                            alert("Submit succeed! Please goto step2");
-                            $('#name_select').attr('disabled','disabled');
+                            alert("Upload succeed! Please goto step2");
                             window.location.hash = "#choose_net";
                         };
                     }, 'json');

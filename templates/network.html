@@ -9,7 +9,7 @@
 	<link href="/static/css/jquery-ui.css" rel="stylesheet" />
   	<script src=/static/js/jquery-ui.js></script>
 </head>
-<body>
+<body style="background-size:100% 575px">
     <div id="header" style="border:solid 1px #e8efe8">
 		<div style="margin-left:60px;">
 			<h1 style="line-height: 60px; font-weight: normal; font-family: sans-serif;">Network Visualization</h1>
@@ -93,15 +93,15 @@
 				</li>
 				<li><a id="btn-hide" href="#">Hide</a>
 				<li><a id="btn-show" href="#">Show</a>
-				<li><a href="#name1">Information</a>
+				<li><a href="#information">Information</a>
 					<ul class="dropdown-menu" id='infoMenu'>
-						<li><a href="#name1" value="expression">Expression</a></li>
-						<li><a href="#name1" value="function">Function</a></li>
-						<li><a href="#name1" value="pathways_interactions">Bio_Process</a></li>
-						<li><a href="#name1" value="deseases">Deseases</a></li>
-						<li><a href="#name1" value="drugs_compounds">Drugs</a></li>
-						<li><a href="#name1" value="pathways_interactions">Pathways</a></li>
-						<li><a href="#name1" value="connection">Connections</a></li>
+						<li><a href="#information" value="expression">Expression</a></li>
+						<li><a href="#information" value="function">Function</a></li>
+						<li><a href="#information" value="pathways_interactions">Bio_Process</a></li>
+						<li><a href="#information" value="deseases">Deseases</a></li>
+						<li><a href="#information" value="drugs_compounds">Drugs</a></li>
+						<li><a href="#information" value="pathways_interactions">Pathways</a></li>
+						<li><a href="#information" value="connection">Connections</a></li>
 					</ul>
 				</li>
 			</ul></div>
@@ -118,7 +118,7 @@
 			<li><a id="pathwaysBySuperPath" value="pathways_interactions">Pathways</a></li>
 			<li><a id="connection" value="connection">Connections</a></li>
 		</ul></div>
-		<a name="name1"><iframe id="iframe" name="iframe" align="center" width="100%" height="1000px" src="https://www.genecards.org/cgi-bin/carddisp.pl?gene=sez6l#function"  frameborder="no" border="0" marginwidth="0" marginheight="0"></iframe></a>
+		<a name="information"><iframe id="iframe" name="iframe" align="center" width="100%" height="1000px" src="https://www.genecards.org/"  frameborder="no" border="0" marginwidth="0" marginheight="0"></iframe></a>
 	</div>
 
 	<script>
@@ -189,7 +189,6 @@
                 "opacity": "0.4"}
                 }
             ];
-
              cy = cytoscape({
                 container: document.getElementById('cy'),
                 style: style,
@@ -198,28 +197,37 @@
             });
         }, 'json');
     });
-
-    window.onload=function (){
-        var nodes = sessionStorage.getItem("nodes").split(',');
-        var result = cy.collection();
-        for(var i in nodes){
-            cy.nodes().forEach(function(ele){
-                if(ele.data("name") == nodes[i]){
-                    result = result.add(ele);
-                }
-            })
-        }
-        cy.nodes(':selected').unselect();
-        result.select();
-<!--            cy.reset();-->
-<!--            cy.center(result);-->
-<!--            cy.zoom({-->
-<!--            renderedPosition: { x: result.position('x'), y: result.position('y') },-->
-<!--            level: 1.15,-->
-<!--            });-->
-        };
     </script>
 
+	<script>
+	function getUrlParam (name) {
+		var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+		var r = window.location.search.substr(1).match(reg);
+		if (r != null) return decodeURIComponent(r[2]); return null;
+	}
+	if(getUrlParam('check')!='selected'){
+		var nodes = sessionStorage.getItem("nodes").split(/[\n\s+,]/g);
+		alert(nodes);
+		var result = cy.collection();
+		for(var i in nodes){
+			cy.nodes().forEach(function(ele){
+				if(ele.data("name") == nodes[i]){
+					result = result.add(ele);
+				}
+			})
+		}
+		cy.nodes(':selected').unselect();
+		result.select();
+	<!--            cy.reset();-->
+	<!--            cy.center(result);-->
+	<!--            cy.zoom({-->
+	<!--            renderedPosition: { x: result.position('x'), y: result.position('y') },-->
+	<!--            level: 1.15,-->
+	<!--            });-->
+	};
+	</script>
+
+	<!--更改网络-->
     <script>
     $(function(){
         $.get('/search1', function (result){
@@ -236,7 +244,6 @@
 		var net = document.getElementById("menu_net").value;
 		var check = 0;
 		check = $("input[type='radio']:checked").attr("id");
-
 		$.ajax({
 			type : 'post',
 			url : '/select',
@@ -365,7 +372,6 @@
 				});
 			}
 		};
-
 		<!--最小文本框-->
 		function min_filter(){
 			mintemp = document.getElementById("min").value;
@@ -396,7 +402,6 @@
 				}
 			}
 		};
-
 		<!--最大文本框-->
 		function max_filter(){
 			maxtemp = document.getElementById("max").value;
@@ -434,18 +439,29 @@
 		$('#infoMenu li a').add('#infoList li a').click(function(){
 			var URL = 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=';
 			var gene = cy.nodes(':selected').data("name");
-			var infoName = $(this).attr('value');
-			var divstyle = document.getElementById("info");
-			divstyle.style.cssText="display:block";
-			document.getElementById("iframe").src = URL + gene + "#" + infoName;
-			var iframe = document.getElementById('iframe').contentWindow;
-			<!--alert(iframe.contentWindow.document.find("#function"));-->
-			<!--$("iframe").contents().find("#gc-subsection");-->
-			window.onload = (function () {
-				alert(document.frames["iframe"].document.getElementsByID("#function"));
-			});
-			<!--document.frames["iframe"].document.getElementById("#function")-->
+			if(jQuery.isEmptyObject(gene)){
+			    alert('Please choose a gene first!');
+			}
+			else{
+                var infoName = $(this).attr('value');
+                var divstyle = document.getElementById("info");
+                divstyle.style.cssText="display:block;width:80%; margin:0 auto;";
+                document.getElementById("iframe").src = URL + gene + "#" + infoName;
+                var iframe = document.getElementById('iframe').contentWindow;
+                window.onload = (function () {
+                    alert(document.frames["iframe"].document.getElementsByID("#function"));
+                });
+            }
 		});
+	</script>
+
+	<script>
+		window.onload=function (){
+    		document.getElementById("cy").style.background='none';
+		}
+<!--		$(document).ready(function (){-->
+<!--			$('#cy').css({'background':'none'});-->
+<!--		})-->
 	</script>
 </body>
 </html>
