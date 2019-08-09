@@ -207,7 +207,6 @@
 	}
 	if(getUrlParam('check')!='selected'){
 		var nodes = sessionStorage.getItem("nodes").split(/[\n\s+,]/g);
-		alert(nodes);
 		var result = cy.collection();
 		for(var i in nodes){
 			cy.nodes().forEach(function(ele){
